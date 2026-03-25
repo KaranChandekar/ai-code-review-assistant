@@ -16,11 +16,11 @@ interface IssueCardProps {
 }
 
 const severityColors: Record<string, string> = {
-  critical: "bg-red-500/10 text-red-500 border-red-500/30",
-  high: "bg-orange-500/10 text-orange-500 border-orange-500/30",
-  medium: "bg-yellow-500/10 text-yellow-500 border-yellow-500/30",
-  low: "bg-blue-500/10 text-blue-500 border-blue-500/30",
-  info: "bg-gray-500/10 text-gray-400 border-gray-500/30",
+  critical: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
+  high: "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30",
+  medium: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-500/30",
+  low: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",
+  info: "bg-gray-500/15 text-gray-600 dark:text-gray-400 border-gray-500/30",
 };
 
 const typeIcons: Record<string, string> = {
@@ -56,25 +56,24 @@ export function IssueCard({ issue, code, language, onApplyFix }: IssueCardProps)
   };
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-lg border border-border bg-card overflow-hidden"
-    >
+    <div className="rounded-xl border border-border bg-card overflow-hidden transition-colors hover:border-border/80">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/50 transition-colors"
+        className="w-full flex items-center gap-3 p-3.5 text-left hover:bg-muted/30 transition-colors"
       >
-        <span className="text-lg">{typeIcons[issue.type]}</span>
+        <span className="text-base">{typeIcons[issue.type]}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-sm">{issue.title}</span>
-            <Badge variant="outline" className={`text-xs ${severityColors[issue.severity]}`}>
+            <Badge
+              variant="outline"
+              className={`text-[10px] font-bold uppercase tracking-wider ${severityColors[issue.severity]}`}
+            >
               {issue.severity}
             </Badge>
-            <span className="text-xs text-muted-foreground">
-              L{issue.lineStart}{issue.lineEnd !== issue.lineStart ? `-${issue.lineEnd}` : ""}
+            <span className="text-[11px] text-muted-foreground font-mono">
+              L{issue.lineStart}
+              {issue.lineEnd !== issue.lineStart ? `-${issue.lineEnd}` : ""}
             </span>
           </div>
         </div>
@@ -94,50 +93,63 @@ export function IssueCard({ issue, code, language, onApplyFix }: IssueCardProps)
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-              <p className="text-sm text-muted-foreground">{issue.description}</p>
+            <div className="px-3.5 pb-3.5 space-y-3 border-t border-border pt-3">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {issue.description}
+              </p>
 
               {issue.suggestion && (
-                <div className="rounded-md bg-muted/50 p-3">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">Suggested fix:</p>
-                  <pre className="text-sm overflow-x-auto whitespace-pre-wrap">
+                <div className="rounded-lg bg-muted/30 border border-border p-3">
+                  <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-2">
+                    Suggested fix
+                  </p>
+                  <pre className="text-xs overflow-x-auto whitespace-pre-wrap font-mono text-foreground/80">
                     <code>{issue.suggestion}</code>
                   </pre>
                 </div>
               )}
 
               {issue.explanation && (
-                <p className="text-xs text-muted-foreground italic">{issue.explanation}</p>
+                <p className="text-xs text-muted-foreground italic leading-relaxed">
+                  {issue.explanation}
+                </p>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-1">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleGenerateFix}
                   disabled={loading}
+                  className="text-xs"
                 >
                   {loading ? (
                     <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                   ) : (
                     <Wrench className="h-3 w-3 mr-1" />
                   )}
-                  {fixedCode ? "Regenerate Fix" : "Generate Fix"}
+                  {fixedCode ? "Regenerate" : "Generate Fix"}
                 </Button>
                 {fixedCode && (
-                  <Button size="sm" onClick={() => onApplyFix(fixedCode)}>
+                  <Button
+                    size="sm"
+                    onClick={() => onApplyFix(fixedCode)}
+                    className="text-xs bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-0 hover:from-violet-500 hover:to-indigo-500"
+                  >
                     Apply Fix
                   </Button>
                 )}
               </div>
 
               {fixedCode && (
-                <DiffViewer original={code} modified={fixedCode} language={language} />
+                <div className="pt-1">
+                  <DiffViewer original={code} modified={fixedCode} language={language} />
+                </div>
               )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }
